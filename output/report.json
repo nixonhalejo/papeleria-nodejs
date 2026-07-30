@@ -1,0 +1,20 @@
+{
+  "generadoEn": "2026-07-30T00:14:46.171Z",
+  "filtroCategoria": "noexiste",
+  "resumen": {
+    "total": 0,
+    "activos": 0,
+    "inactivos": 0,
+    "precioPromedio": 0,
+    "masCaro": null,
+    "masBarato": null,
+    "categoriasDisponibles": [
+      "cuadernos",
+      "electronica",
+      "escritura",
+      "papel",
+      "utiles"
+    ]
+  },
+  "productos": []
+}
