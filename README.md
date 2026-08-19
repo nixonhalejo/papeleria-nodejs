@@ -130,3 +130,25 @@ PORT=3000
 ### Probado con
 
 Thunder Client — los 5 endpoints verificados en sus status codes correctos (200, 201, 204, 404), incluyendo paginación y autenticación por API key.
+
+## Semana 04 — Validación, Errores y Logging
+
+### Validación con Zod
+
+Schemas en `src/schemas/product.schema.ts`: `createProductSchema` (creación) y `updateProductSchema` (actualización, campos opcionales vía `.partial()`).
+
+Reglas aplicadas: `name`/`category` no vacíos, `price` positivo, `stock`/`sales` enteros no negativos, `:id` validado como entero positivo con `z.coerce`.
+
+### Manejo de errores
+
+- `AppError` (`src/errors/AppError.ts`) — errores de aplicación con `statusCode` explícito.
+- `errorHandler` centralizado distingue `ZodError` (400 + `issues[]`), `AppError` (su propio `statusCode`) y errores genéricos (500).
+- `notFound` — middleware para rutas no registradas, responde 404 en JSON.
+
+### Logging
+
+Winston configurado en `src/config/logger.ts`: nivel `http` en desarrollo (colorizado), `warn` en producción (JSON + archivo `logs/error.log`). Morgan integrado vía stream personalizado.
+
+### Probado con
+
+Thunder Client — validación de body inválido (`issues[]`), id no numérico (400), id inexistente (404), ruta inexistente (404 JSON), y logs visibles en consola con Winston.

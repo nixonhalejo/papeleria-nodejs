@@ -1,5 +1,7 @@
 import * as productsRepository from "../repositories/products.repository.js";
+import { AppError } from "../errors/AppError.js";
 import type { Product } from "../types.js";
+import type { CreateProductInput, UpdateProductInput } from "../schemas/product.schema.js";
 
 export interface PaginatedResult<T> {
   data: T[];
@@ -20,56 +22,38 @@ export async function listProducts(page: number, limit: number): Promise<Paginat
   return { data, total, page, limit };
 }
 
-/** Obtiene un producto por id. Lanza un error si no existe. */
+/** Obtiene un producto por id. Lanza AppError 404 si no existe. */
 export async function getProductById(id: number): Promise<Product> {
   const product = await productsRepository.findById(id);
 
   if (!product) {
-    throw new NotFoundError(`Item ${id} not found`);
+    throw new AppError(404, `Producto ${id} no encontrado.`);
   }
 
   return product;
 }
 
-/** Valida y crea un producto nuevo. */
-export async function createProduct(data: Omit<Product, "id" | "createdAt">): Promise<Product> {
-  if (!data.name || !data.category || data.price === undefined) {
-    throw new ValidationError("Los campos 'name', 'category' y 'price' son obligatorios.");
-  }
-
-  if (data.price < 0) {
-    throw new ValidationError("El precio no puede ser negativo.");
-  }
-
+/** Crea un producto nuevo (los datos ya vienen validados por Zod). */
+export async function createProduct(data: CreateProductInput): Promise<Product> {
   return productsRepository.create(data);
 }
 
-/** Valida y actualiza un producto existente. */
-export async function updateProduct(id: number, data: Partial<Product>): Promise<Product> {
-  if (data.price !== undefined && data.price < 0) {
-    throw new ValidationError("El precio no puede ser negativo.");
-  }
-
+/** Actualiza un producto existente. Lanza AppError 404 si no existe. */
+export async function updateProduct(id: number, data: UpdateProductInput): Promise<Product> {
   const updated = await productsRepository.update(id, data);
 
   if (!updated) {
-    throw new NotFoundError(`Item ${id} not found`);
+    throw new AppError(404, `Producto ${id} no encontrado.`);
   }
 
   return updated;
 }
 
-/** Elimina un producto existente. */
+/** Elimina un producto existente. Lanza AppError 404 si no existe. */
 export async function deleteProduct(id: number): Promise<void> {
   const deleted = await productsRepository.remove(id);
 
   if (!deleted) {
-    throw new NotFoundError(`Item ${id} not found`);
+    throw new AppError(404, `Producto ${id} no encontrado.`);
   }
 }
-
-/** Error de dominio: recurso no encontrado. */
-export class NotFoundError extends Error {}
-
-/** Error de dominio: datos inválidos. */
-export class ValidationError extends Error {}
