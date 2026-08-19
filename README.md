@@ -79,3 +79,54 @@ Sin ese header → `401`. Con una key incorrecta → `403`.
 ### Probado con
 
 Thunder Client — todos los métodos y códigos de respuesta (200, 201, 401, 403, 404, 500) fueron verificados manualmente.
+
+## Semana 03 — API REST con Arquitectura en Capas
+
+Refactor de la API a 4 capas: `routes → controllers → services → repositories`.
+
+### Capas
+
+- **repositories/** — única capa que toca los datos (el array en memoria). Todos los métodos `async`, con copias defensivas.
+- **services/** — paginación y validaciones de dominio. Sin dependencias de Express.
+- **controllers/** — extraer → llamar service → responder (3 pasos, sin lógica de negocio).
+- **routes/** — solo mapeo URL → función del controller.
+
+### Endpoints
+
+Base: `/api/v1/products`
+
+| Método | Ruta                | Status | Descripción                          | Auth |
+|--------|---------------------|--------|----------------------------------------|------|
+| GET    | `/`                 | 200    | Lista con paginación `?page&limit`     | No   |
+| GET    | `/:id`              | 200    | Obtiene por id                          | No   |
+| POST   | `/`                 | 201    | Crea nuevo producto                     | Sí   |
+| PUT    | `/:id`              | 200    | Actualiza (merge parcial)               | Sí   |
+| DELETE | `/:id`              | 204    | Elimina                                 | Sí   |
+
+### Contratos de respuesta
+
+\`\`\`json
+// GET /products?page=1&limit=5 → 200
+{ "data": [...], "total": 12, "page": 1, "limit": 5 }
+
+// GET /products/1 → 200
+{ "data": { "id": 1, "name": "...", ... } }
+
+// POST /products → 201
+{ "data": { "id": 13, "createdAt": "...", ... } }
+
+// GET /products/999 → 404
+{ "error": "Not Found", "message": "Item 999 not found" }
+\`\`\`
+
+### Variables de entorno
+
+Copia `.env.example` (o crea `.env`) con:
+
+\`\`\`
+PORT=3000
+\`\`\`
+
+### Probado con
+
+Thunder Client — los 5 endpoints verificados en sus status codes correctos (200, 201, 204, 404), incluyendo paginación y autenticación por API key.

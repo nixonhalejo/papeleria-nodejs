@@ -1,4 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
+import { NotFoundError, ValidationError } from "../services/products.service.js";
 
 /**
  * Manejador de errores centralizado. Express lo reconoce por tener
@@ -11,5 +12,14 @@ export function errorHandler(
   next: NextFunction
 ) {
   console.error("💥 Error capturado:", err.message);
-  res.status(500).json({ error: "Error interno del servidor.", detalle: err.message });
+
+  if (err instanceof NotFoundError) {
+    return res.status(404).json({ error: "Not Found", message: err.message });
+  }
+
+  if (err instanceof ValidationError) {
+    return res.status(400).json({ error: "Bad Request", message: err.message });
+  }
+
+  res.status(500).json({ error: "Internal Server Error", message: err.message });
 }

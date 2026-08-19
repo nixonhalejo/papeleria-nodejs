@@ -24,3 +24,13 @@ export interface Report {
   resumen: Summary;
   productos: Product[];
 }
+export interface Product {
+  id: number;
+  name: string;
+  category: string;
+  price: number;
+  stock: number;
+  sales: number;
+  available: boolean;
+  createdAt: string;
+}
