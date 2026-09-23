@@ -1,42 +1,80 @@
-import { products, getNextId } from "../data/products.js";
-import type { Product } from "../types.js";
+import { prisma } from '../lib/prisma.js';
+import { AppError } from '../errors/AppError.js';
+import { Prisma } from '@prisma/client';
 
-/** Obtiene todos los productos (copia defensiva, para que nadie modifique el array original desde afuera). */
-export async function findAll(): Promise<Product[]> {
-  return [...products];
-}
+export class ProductsRepository {
+  async findAll(page: number, limit: number) {
+    const skip = (page - 1) * limit;
 
-/** Busca un producto por id. Devuelve null si no existe. */
-export async function findById(id: number): Promise<Product | null> {
-  const product = products.find((p) => p.id === id);
-  return product ? { ...product } : null;
-}
+    const [data, total] = await Promise.all([
+      prisma.product.findMany({
+        skip,
+        take: limit,
+        include: { category: true },
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.product.count(),
+    ]);
 
-/** Crea un producto nuevo y lo agrega al catálogo. */
-export async function create(data: Omit<Product, "id" | "createdAt">): Promise<Product> {
-  const newProduct: Product = {
-    id: getNextId(),
-    createdAt: new Date().toISOString(),
-    ...data,
-  };
-  products.push(newProduct);
-  return { ...newProduct };
-}
+    return { data, total, page, limit };
+  }
 
-/** Actualiza un producto existente (merge parcial). Devuelve null si no existe. */
-export async function update(id: number, data: Partial<Product>): Promise<Product | null> {
-  const index = products.findIndex((p) => p.id === id);
-  if (index === -1) return null;
+  async findById(id: string) {
+    const product = await prisma.product.findUnique({
+      where: { id },
+      include: { category: true },
+    });
 
-  products[index] = { ...products[index], ...data, id };
-  return { ...products[index] };
-}
+    if (!product) {
+      throw new AppError(404, 'Producto no encontrado');
+    }
 
-/** Elimina un producto por id. Devuelve true si se eliminó, false si no existía. */
-export async function remove(id: number): Promise<boolean> {
-  const index = products.findIndex((p) => p.id === id);
-  if (index === -1) return false;
+    return product;
+  }
 
-  products.splice(index, 1);
-  return true;
+  async create(data: Prisma.ProductUncheckedCreateInput) {
+    try {
+      return await prisma.product.create({
+        data,
+        include: { category: true },
+      });
+    } catch (error) {
+      this.handlePrismaError(error);
+    }
+  }
+
+  async update(id: string, data: Prisma.ProductUncheckedUpdateInput) {
+    try {
+      return await prisma.product.update({
+        where: { id },
+        data,
+        include: { category: true },
+      });
+    } catch (error) {
+      this.handlePrismaError(error);
+    }
+  }
+
+  async delete(id: string) {
+    try {
+      await prisma.product.delete({ where: { id } });
+    } catch (error) {
+      this.handlePrismaError(error);
+    }
+  }
+
+  private handlePrismaError(error: any): never {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === 'P2025') {
+        throw new AppError(404, 'Recurso no encontrado');
+      }
+      if (error.code === 'P2002') {
+        throw new AppError(409, 'Ya existe un registro con ese valor en un campo único');
+      }
+      if (error.code === 'P2003') {
+        throw new AppError(400, 'La categoría especificada (categoryId) no existe');
+      }
+    }
+    throw error;
+  }
 }

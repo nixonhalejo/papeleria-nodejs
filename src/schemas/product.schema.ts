@@ -1,15 +1,21 @@
-import { z } from "zod";
+import { z } from 'zod';
+
+export const productParamSchema = z.object({
+  id: z.string().uuid({ message: 'El ID debe ser un UUID válido' }),
+});
 
 export const createProductSchema = z.object({
-  name: z.string().min(1, "El nombre es obligatorio").trim(),
-  category: z.string().min(1, "La categoría es obligatoria").trim(),
-  price: z.number().positive("El precio debe ser mayor a 0"),
-  stock: z.number().int().nonnegative("El stock no puede ser negativo").default(0),
-  sales: z.number().int().nonnegative().default(0),
-  available: z.boolean().default(true),
+  name: z.string().min(2, { message: 'El nombre debe tener al menos 2 caracteres' }),
+  price: z.number().positive({ message: 'El precio debe ser un número positivo' }),
+  stock: z.number().int().nonnegative({ message: 'El stock debe ser entero >= 0' }).optional(),
+  sales: z.number().int().nonnegative({ message: 'Las ventas deben ser entero >= 0' }).optional(),
+  available: z.boolean().optional(),
+  categoryId: z.string().uuid({ message: 'El categoryId debe ser un UUID válido' }),
 });
 
 export const updateProductSchema = createProductSchema.partial();
 
-export type CreateProductInput = z.infer<typeof createProductSchema>;
-export type UpdateProductInput = z.infer<typeof updateProductSchema>;
+export const paginationQuerySchema = z.object({
+  page: z.coerce.number().int().positive().default(1),
+  limit: z.coerce.number().int().positive().max(100).default(10),
+});

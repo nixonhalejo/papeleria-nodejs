@@ -1,11 +1,13 @@
-import { Router } from "express";
-import * as productsController from "../controllers/products.controller.js";
-import { fakeAuth } from "../middlewares/auth.js";
+import { Router } from 'express';
+import { ProductsController } from '../controllers/products.controller.js';
 
-export const productsRouter = Router();
+const router = Router();
+const controller = new ProductsController();
 
-productsRouter.get("/", productsController.getAll);
-productsRouter.get("/:id", productsController.getById);
-productsRouter.post("/", fakeAuth, productsController.create);
-productsRouter.put("/:id", fakeAuth, productsController.update);
-productsRouter.delete("/:id", fakeAuth, productsController.remove);
+router.get('/', controller.getAll);
+router.get('/:id', controller.getById);
+router.post('/', controller.create);
+router.put('/:id', controller.update);
+router.delete('/:id', controller.delete);
+
+export default router;
