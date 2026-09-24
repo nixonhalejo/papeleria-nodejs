@@ -1,27 +1,34 @@
-import { ProductsRepository } from '../repositories/products.repository.js';
+import { ProductRepository } from '../repositories/products.repository.js';
+import { CategoryRepository } from '../repositories/categories.repository.js';
+import { IProduct } from '../models/product.model.js';
 
-export class ProductsService {
-  constructor(private repository = new ProductsRepository()) {}
+export class ProductService {
+  private productRepo = new ProductRepository();
+  private categoryRepo = new CategoryRepository();
 
-  async getAllProducts(page: number, limit: number) {
-    return this.repository.findAll(page, limit);
+  getAll(page: number, limit: number) {
+    return this.productRepo.findAll(page, limit);
   }
 
-  async getProductById(id: string) {
-    return this.repository.findById(id);
+  getById(id: string) {
+    return this.productRepo.findById(id);
   }
 
-  async createProduct(data: any) {
-    return this.repository.create(data);
+  async create(data: Partial<IProduct>) {
+    if (data.category) {
+      await this.categoryRepo.findById(data.category.toString());
+    }
+    return this.productRepo.create(data);
   }
 
-  async updateProduct(id: string, data: any) {
-    await this.repository.findById(id);
-    return this.repository.update(id, data);
+  async update(id: string, data: Partial<IProduct>) {
+    if (data.category) {
+      await this.categoryRepo.findById(data.category.toString());
+    }
+    return this.productRepo.update(id, data);
   }
 
-  async deleteProduct(id: string) {
-    await this.repository.findById(id);
-    return this.repository.delete(id);
+  delete(id: string) {
+    return this.productRepo.delete(id);
   }
 }

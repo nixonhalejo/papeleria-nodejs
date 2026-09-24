@@ -17,6 +17,7 @@
   "devDependencies": {
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
+    "@types/mongoose": "^5.11.97",
     "@types/morgan": "^1.9.10",
     "@types/node": "^26.1.2",
     "prisma": "^5.22.0",
@@ -29,9 +30,10 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "mongoose": "9.4.1",
     "morgan": "^1.11.0",
     "winston": "^3.19.0",
-    "zod": "^4.4.3"
+    "zod": "^4.3.6"
   },
   "scripts": {
     "dev": "tsx src/index.ts",

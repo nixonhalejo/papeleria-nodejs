@@ -152,3 +152,87 @@ Winston configurado en `src/config/logger.ts`: nivel `http` en desarrollo (color
 ### Probado con
 
 Thunder Client — validación de body inválido (`issues[]`), id no numérico (400), id inexistente (404), ruta inexistente (404 JSON), y logs visibles en consola con Winston.
+# Papelería — API RESTful y Procesador de Datos (Node.js + Express + TypeScript)
+
+Proyecto del bootcamp **bc-expressjs** (Ficha 3228973A).  
+**Autor:** Nixon Hernán Alejo Baracaldo  
+**Dominio asignado:** Papelería
+
+---
+
+## 🛠️ Tecnologías y Herramientas
+
+- **Runtime:** Node.js (ES Modules)
+- **Lenguaje:** TypeScript
+- **Framework:** Express v5
+- **ORM:** Prisma v5.22.0
+- **Base de Datos:** PostgreSQL 16 (vía Docker Desktop)
+- **Validación:** Zod
+- **Logging:** Winston + Morgan
+- **Gestor de paquetes:** pnpm
+
+---
+
+## 📂 Estructura del Proyecto
+
+```text
+src/
+├── controllers/    # Controladores de Express (manejo de req, res, next)
+├── errors/         # Manejo centralizado de errores (AppError)
+├── lib/            # Instancia global del cliente de Prisma
+├── middlewares/    # Middlewares de loggeo, autenticación y error handler
+├── repositories/   # Capa de datos con Prisma ORM
+├── routes/         # Definición de rutas REST
+├── schemas/        # Schemas de validación con Zod
+├── services/       # Lógica de negocio
+└── server.ts       # Punto de entrada de la aplicación HTTP
+
+prisma/
+├── schema.prisma   # Modelos de datos (Category, Product)
+├── seed.ts         # Script de carga de datos iniciales
+└── migrations/     # Historial de migraciones de PostgreSQL
+# 📚 Proyecto Papelería - Semana 06: API REST con MongoDB y Mongoose
+
+En esta semana se integró **MongoDB** como base de datos NoSQL utilizando el ORM/ODM **Mongoose**. Se implementó una arquitectura en capas (**Model, Repository, Service, Controller, Route**) junto con validaciones estáticas mediante **Zod** e interpolación/población de datos con `.populate()`.
+
+---
+
+## 🛠️ Tecnologías Utilizadas
+
+- **Node.js** & **TypeScript**
+- **Express.js** (Framework Web API REST)
+- **MongoDB** & **Mongoose** (ODM para modelado de datos)
+- **Zod** (Validación de esquemas y DTOs)
+- **TSX** (Ejecución y retranspilación en vivo)
+
+---
+
+## 📁 Arquitectura y Estructura del Proyecto
+
+```text
+src/
+├── lib/
+│   └── mongoose.ts          # Configuración y conexión a MongoDB
+├── models/
+│   ├── category.model.ts    # Modelo e Interfaz Mongoose de Categoría
+│   └── product.model.ts     # Modelo e Interfaz Mongoose de Producto
+├── schemas/
+│   ├── category.schema.ts   # Esqueletos Zod de validación para Categorías
+│   └── product.schema.ts    # Esqueletos Zod de validación para Productos
+├── repositories/
+│   ├── categories.repository.ts  # Consultas directas Mongoose para Categorías
+│   └── products.repository.ts    # Consultas directas Mongoose para Productos (con Paginación)
+├── services/
+│   ├── categories.service.ts     # Lógica de negocio para Categorías
+│   └── products.service.ts       # Lógica de negocio y reglas para Productos
+├── controllers/
+│   ├── categories.controller.ts  # Controladores de solicitudes HTTP
+│   └── products.controller.ts    # Controladores de solicitudes HTTP
+├── routes/
+│   ├── categories.routes.ts      # Endpoints para /api/categories
+│   └── products.routes.ts        # Endpoints para /api/products
+├── errors/
+│   └── AppError.ts               # Manejo global de excepciones personalizadas
+├── app.ts                        # Configuración de Express y Middlewares
+├── server.ts                     # Punto de entrada y arranque del servidor
+└── seed.ts                       # Script de siembra de datos iniciales en MongoDB

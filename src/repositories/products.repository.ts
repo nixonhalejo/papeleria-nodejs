@@ -1,80 +1,45 @@
-import { prisma } from '../lib/prisma.js';
+import { ProductModel, IProduct } from '../models/product.model.js';
 import { AppError } from '../errors/AppError.js';
-import { Prisma } from '@prisma/client';
 
-export class ProductsRepository {
-  async findAll(page: number, limit: number) {
+export class ProductRepository {
+  async findAll(page: number = 1, limit: number = 10) {
     const skip = (page - 1) * limit;
-
     const [data, total] = await Promise.all([
-      prisma.product.findMany({
-        skip,
-        take: limit,
-        include: { category: true },
-        orderBy: { createdAt: 'desc' },
-      }),
-      prisma.product.count(),
+      ProductModel.find().populate('category').skip(skip).limit(limit).exec(),
+      ProductModel.countDocuments(),
     ]);
 
-    return { data, total, page, limit };
+    return {
+      data,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
-  async findById(id: string) {
-    const product = await prisma.product.findUnique({
-      where: { id },
-      include: { category: true },
-    });
-
-    if (!product) {
-      throw new AppError(404, 'Producto no encontrado');
-    }
-
+  async findById(id: string): Promise<IProduct> {
+    const product = await ProductModel.findById(id).populate('category').exec();
+    if (!product) throw new AppError(404, 'Producto no encontrado');
     return product;
   }
 
-  async create(data: Prisma.ProductUncheckedCreateInput) {
-    try {
-      return await prisma.product.create({
-        data,
-        include: { category: true },
-      });
-    } catch (error) {
-      this.handlePrismaError(error);
-    }
+  async create(data: Partial<IProduct>): Promise<IProduct> {
+    const newProduct = new ProductModel(data);
+    return await newProduct.save();
   }
 
-  async update(id: string, data: Prisma.ProductUncheckedUpdateInput) {
-    try {
-      return await prisma.product.update({
-        where: { id },
-        data,
-        include: { category: true },
-      });
-    } catch (error) {
-      this.handlePrismaError(error);
-    }
+  async update(id: string, data: Partial<IProduct>): Promise<IProduct> {
+    const updated = await ProductModel.findByIdAndUpdate(id, data, {
+      new: true,
+      runValidators: true,
+    }).populate('category');
+
+    if (!updated) throw new AppError(404, 'Producto no encontrado para actualizar');
+    return updated;
   }
 
-  async delete(id: string) {
-    try {
-      await prisma.product.delete({ where: { id } });
-    } catch (error) {
-      this.handlePrismaError(error);
-    }
-  }
-
-  private handlePrismaError(error: any): never {
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      if (error.code === 'P2025') {
-        throw new AppError(404, 'Recurso no encontrado');
-      }
-      if (error.code === 'P2002') {
-        throw new AppError(409, 'Ya existe un registro con ese valor en un campo único');
-      }
-      if (error.code === 'P2003') {
-        throw new AppError(400, 'La categoría especificada (categoryId) no existe');
-      }
-    }
-    throw error;
+  async delete(id: string): Promise<void> {
+    const deleted = await ProductModel.findByIdAndDelete(id);
+    if (!deleted) throw new AppError(404, 'Producto no encontrado para eliminar');
   }
 }

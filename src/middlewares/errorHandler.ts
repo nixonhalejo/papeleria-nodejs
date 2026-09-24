@@ -1,37 +1,30 @@
-import type { Request, Response, NextFunction } from "express";
-import { ZodError } from "zod";
-import { AppError } from "../errors/AppError.js";
-import { logger } from "../config/logger.js";
+import { Request, Response, NextFunction } from 'express';
+import { AppError } from '../errors/AppError.js';
 
-/**
- * Manejador de errores centralizado (4 parámetros — así Express lo reconoce
- * como middleware de errores). Debe registrarse al final de la cadena,
- * después de notFound.
- */
-export function errorHandler(
-  err: Error,
-  req: Request,
+export const errorHandler = (
+  err: any,
+  _req: Request,
   res: Response,
-  next: NextFunction
-) {
-  // 1. Errores de validación de Zod
-  if (err instanceof ZodError) {
-    return res.status(400).json({
-      error: "Validation Error",
-      issues: err.issues,
-    });
-  }
-
-  // 2. Errores de aplicación (esperados: 404, 400, etc.)
+  _next: NextFunction
+): void => {
   if (err instanceof AppError) {
-    logger.warn(`${err.statusCode} - ${err.message} - ${req.method} ${req.originalUrl}`);
-    return res.status(err.statusCode).json({
-      error: err.name === "Error" ? "AppError" : err.name,
-      message: err.message,
-    });
+    res.status(err.statusCode).json({ error: err.message });
+    return;
   }
 
-  // 3. Cualquier otro error no anticipado
-  logger.error(`500 - ${err.message} - ${req.method} ${req.originalUrl}`);
-  res.status(500).json({ error: "Internal Server Error", message: err.message });
-}
+  // Error de clave duplicada en MongoDB (code 11000)
+  if (err.code === 11000) {
+    const field = Object.keys(err.keyValue || {})[0] || 'campo';
+    res.status(409).json({ error: `El ${field} ingresado ya se encuentra registrado` });
+    return;
+  }
+
+  // Error de Mongoose para IDs con formato inválido (CastError)
+  if (err.name === 'CastError') {
+    res.status(400).json({ error: `Formato de ID o valor inválido: ${err.value}` });
+    return;
+  }
+
+  console.error('💥 Error no controlado:', err);
+  res.status(500).json({ error: 'Error interno del servidor' });
+};

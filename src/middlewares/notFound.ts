@@ -1,7 +1,5 @@
-import type { Request, Response, NextFunction } from "express";
-import { AppError } from "../errors/AppError.js";
+import { Request, Response } from 'express';
 
-/** Middleware para rutas que no coinciden con ninguna definida. Debe ir antes del errorHandler. */
-export function notFound(req: Request, res: Response, next: NextFunction) {
-  next(new AppError(404, `Ruta ${req.method} ${req.originalUrl} no encontrada.`));
-}
+export const notFound = (_req: Request, res: Response): void => {
+  res.status(404).json({ error: 'Ruta no encontrada' });
+};
