@@ -275,3 +275,26 @@ src/
 │   └── express.d.ts           # Extensión de tipos de Request para req.user
 └── utils/
     └── jwt.ts                 # Funciones helper para Bcrypt y JWT
+
+    # 📚 Proyecto Papelería - Semana 08: Seguridad Avanzada e Integral
+
+En esta semana se implementó la capa de **seguridad avanzada** en la API REST mediante la integración de **Helmet** para el aseguramiento de cabeceras HTTP, **CORS** con una política de lista blanca (*whitelist*) dinámica, y control de tasa de peticiones (**Express Rate Limit**) para prevenir ataques de denegación de servicio (DDoS) y fuerza bruta.
+
+---
+
+## 🛠️ Tecnologías y Módulos de Seguridad
+
+- **Helmet**: Middleware que configura cabeceras HTTP seguras para ocultar la tecnología base (`X-Powered-By`) y prevenir vulnerabilidades de Cross-Site Scripting (XSS) y Clickjacking.
+- **CORS (Cross-Origin Resource Sharing)**: Restricción de acceso mediante una *whitelist* configurada explícitamente para dominios autorizados y habilitada para el envío seguro de cookies (`credentials: true`).
+- **Express Rate Limit**: 
+  - **Limitador Global**: Restringe el tráfico general a 100 peticiones por cada ventana de 15 minutos por IP.
+  - **Limitador Estricto (Auth)**: Protege los endpoints de autenticación (`/api/v1/auth`) limitando a un máximo de 5 intentos por cada 15 minutos para bloquear ataques por fuerza bruta.
+
+---
+
+## 📁 Estructura del Módulo de Seguridad
+
+```text
+src/
+└── config/
+    └── security.ts      # Configuración centralizada de Helmet, CORS Whitelist y Rate Limits

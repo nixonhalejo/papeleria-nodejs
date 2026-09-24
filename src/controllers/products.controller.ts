@@ -1,63 +1,56 @@
 import { Request, Response, NextFunction } from 'express';
-import { ProductsService } from '../services/products.service.js';
-import {
-  createProductSchema,
-  updateProductSchema,
-  productParamSchema,
-  paginationQuerySchema,
-} from '../schemas/product.schema.js';
+import { ProductService } from '../services/products.service.js';
+import { createProductSchema, updateProductSchema } from '../schemas/product.schema.js';
 
-export class ProductsController {
-  constructor(private service = new ProductsService()) {}
+const service = new ProductService();
 
-  getAll = async (req: Request, res: Response, next: NextFunction) => {
+export class ProductController {
+  static async getAll(req: Request, res: Response, next: NextFunction) {
     try {
-      const { page, limit } = paginationQuerySchema.parse(req.query);
-      const result = await this.service.getAllProducts(page, limit);
-      res.status(200).json(result);
-    } catch (error) {
-      next(error);
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 10;
+      const result = await service.getAll(page, limit);
+      res.json(result);
+    } catch (err) {
+      next(err);
     }
-  };
+  }
 
-  getById = async (req: Request, res: Response, next: NextFunction) => {
+  static async getById(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = productParamSchema.parse(req.params);
-      const product = await this.service.getProductById(id);
-      res.status(200).json({ data: product });
-    } catch (error) {
-      next(error);
+      const product = await service.getById(req.params.id);
+      res.json(product);
+    } catch (err) {
+      next(err);
     }
-  };
+  }
 
-  create = async (req: Request, res: Response, next: NextFunction) => {
+  static async create(req: Request, res: Response, next: NextFunction) {
     try {
-      const payload = createProductSchema.parse(req.body);
-      const product = await this.service.createProduct(payload);
-      res.status(201).json({ data: product });
-    } catch (error) {
-      next(error);
+      const validated = createProductSchema.parse(req.body);
+      const product = await service.create(validated as any);
+      res.status(201).json(product);
+    } catch (err) {
+      next(err);
     }
-  };
+  }
 
-  update = async (req: Request, res: Response, next: NextFunction) => {
+  static async update(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = productParamSchema.parse(req.params);
-      const payload = updateProductSchema.parse(req.body);
-      const product = await this.service.updateProduct(id, payload);
-      res.status(200).json({ data: product });
-    } catch (error) {
-      next(error);
+      const validated = updateProductSchema.parse(req.body);
+      const product = await service.update(req.params.id, validated as any);
+      res.json(product);
+    } catch (err) {
+      next(err);
     }
-  };
+  }
 
-  delete = async (req: Request, res: Response, next: NextFunction) => {
+  static async delete(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = productParamSchema.parse(req.params);
-      await this.service.deleteProduct(id);
+      await service.delete(req.params.id);
       res.status(204).send();
-    } catch (error) {
-      next(error);
+    } catch (err) {
+      next(err);
     }
-  };
+  }
 }
