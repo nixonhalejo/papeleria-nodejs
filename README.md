@@ -236,3 +236,42 @@ src/
 ├── app.ts                        # Configuración de Express y Middlewares
 ├── server.ts                     # Punto de entrada y arranque del servidor
 └── seed.ts                       # Script de siembra de datos iniciales en MongoDB
+
+# 📚 Proyecto Papelería - Semana 07: Autenticación, Seguridad con JWT y RBAC
+
+En esta semana se implementó la capa de **Autenticación y Autorización** del sistema mediante el uso de **JSON Web Tokens (JWT)**, hash de contraseñas con **Bcrypt**, cookies seguras `HttpOnly` para Refresh Tokens y control de acceso basado en roles (**RBAC**).
+
+---
+
+## 🛠️ Tecnologías e Instalaciones
+
+- **jsonwebtoken**: Generación y verificación de Access Tokens (15m) y Refresh Tokens (7d).
+- **bcryptjs**: Encriptación y comprobación de contraseñas de usuarios.
+- **cookie-parser**: Lectura y gestión de cookies en solicitudes HTTP.
+- **Zod**: Validaciones para esquemas de registro e inicio de sesión.
+
+---
+
+## 📁 Estructura del Módulo de Autenticación
+
+```text
+src/
+├── controllers/
+│   └── auth.controller.ts     # Manejo de peticiones /register y /login
+├── middlewares/
+│   ├── auth.middleware.ts     # Validación de Access Token Bearer
+│   └── role.middleware.ts     # Restricción por rol (ADMIN / USER)
+├── models/
+│   └── user.model.ts          # Esquema Mongoose para la entidad User
+├── repositories/
+│   └── user.repository.ts     # Consultas de usuario en MongoDB
+├── routes/
+│   └── auth.routes.ts         # Definición de endpoints de autenticación
+├── schemas/
+│   └── auth.schema.ts         # Validaciones Zod de registro y login
+├── services/
+│   └── auth.service.ts        # Lógica de encriptación y emisión de tokens
+├── types/
+│   └── express.d.ts           # Extensión de tipos de Request para req.user
+└── utils/
+    └── jwt.ts                 # Funciones helper para Bcrypt y JWT
