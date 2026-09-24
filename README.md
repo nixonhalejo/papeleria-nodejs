@@ -298,3 +298,32 @@ En esta semana se implementó la capa de **seguridad avanzada** en la API REST m
 src/
 └── config/
     └── security.ts      # Configuración centralizada de Helmet, CORS Whitelist y Rate Limits
+
+    # 🧪 Semana 09: Pruebas Unitarias e Integración con Vitest & Supertest
+
+Proyecto Backend API REST para la Papelería desarrollado con **Node.js**, **Express**, **TypeScript**, **MongoDB/Mongoose**, y validado integralmente con pruebas automatizadas.
+
+---
+
+## 📋 Tabla de Contenidos
+
+1. [Descripción](#descripción)
+2. [Arquitectura de Pruebas](#arquitectura-de-pruebas)
+3. [Herramientas Utilizadas](#herramientas-utilizadas)
+4. [Estructura del Proyecto](#estructura-del-proyecto)
+5. [Instalación y Configuración](#instalación-y-configuración)
+6. [Ejecución de Pruebas](#ejecución-de-pruebas)
+7. [Endpoints Probados](#endpoints-probados)
+
+---
+
+## 📌 Descripción
+
+En esta iteración se implementó una suite completa de pruebas para garantizar la confiabilidad, estabilidad e integridad del sistema. La estrategia abarca:
+
+- **Pruebas Unitarias:** Verificación aislada de utilidades, clases de error personalizadas y firma/verificación de Tokens JWT.
+- **Pruebas de Integración:** Verificación de flujos HTTP completos invocando las rutas de Express y validando respuestas, errores y códigos de estado.
+
+---
+
+## 🏗️ Arquitectura de Pruebas
